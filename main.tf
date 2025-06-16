@@ -1,12 +1,12 @@
 # Define the resource group
 resource "azurerm_resource_group" "rg" {
-  name     = "${var.label_prefix}-A05-RG"
+  name     = "${var.label_prefix}-A06-RG"
   location = var.region
 }
 
 # Define a public IP address
 resource "azurerm_public_ip" "webserver" {
-  name                = "${var.label_prefix}A05PublicIP"
+  name                = "${var.label_prefix}A06PublicIP"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
@@ -14,16 +14,15 @@ resource "azurerm_public_ip" "webserver" {
 
 # Define the virtual network
 resource "azurerm_virtual_network" "vnet" {
-  name                = "${var.label_prefix}A05Vnet"
+  name                = "${var.label_prefix}A06Vnet"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-
 # Define the subnet
 resource "azurerm_subnet" "webserver" {
-  name                 = "${var.label_prefix}A05Subnet"
+  name                 = "${var.label_prefix}A06Subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
@@ -31,7 +30,7 @@ resource "azurerm_subnet" "webserver" {
 
 # Define network security group and rules
 resource "azurerm_network_security_group" "webserver" {
-  name                = "${var.label_prefix}A05SG" # mckennrA05SG
+  name                = "${var.label_prefix}A06SG"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -62,12 +61,12 @@ resource "azurerm_network_security_group" "webserver" {
 
 # Define the network interface
 resource "azurerm_network_interface" "webserver" {
-  name                = "${var.label_prefix}A05Nic"
+  name                = "${var.label_prefix}A06Nic"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
-    name                          = "${var.label_prefix}A05NicConfig"
+    name                          = "${var.label_prefix}A06NicConfig"
     subnet_id                     = azurerm_subnet.webserver.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.webserver.id
@@ -95,14 +94,14 @@ data "cloudinit_config" "init" {
 
 # Define the virtual machine
 resource "azurerm_linux_virtual_machine" "webserver" {
-  name                  = "${var.label_prefix}A05VM"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  network_interface_ids = [azurerm_network_interface.webserver.id]
-  size                  = "Standard_B1s"
+  name                   = "${var.label_prefix}A06VM"
+  resource_group_name    = azurerm_resource_group.rg.name
+  location               = azurerm_resource_group.rg.location
+  network_interface_ids  = [azurerm_network_interface.webserver.id]
+  size                   = "Standard_B1s"
 
   os_disk {
-    name                 = "${var.label_prefix}A05OSDisk"
+    name                 = "${var.label_prefix}A06OSDisk"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
@@ -114,13 +113,13 @@ resource "azurerm_linux_virtual_machine" "webserver" {
     version   = "latest"
   }
 
-  computer_name                   = "${var.label_prefix}A05VM"
-  admin_username                  = var.admin_username
-  disable_password_authentication = true
+  computer_name                    = "${var.label_prefix}A06VM"
+  admin_username                   = var.admin_username
+  disable_password_authentication  = true
 
   admin_ssh_key {
     username   = var.admin_username
-    public_key = file("~/.ssh/id_rsa.pub")
+    public_key = file("/Users/romeodeguzmanii/.ssh/id_rsa.pub")
   }
 
   custom_data = data.cloudinit_config.init.rendered
